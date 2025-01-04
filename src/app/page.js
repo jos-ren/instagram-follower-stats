@@ -307,7 +307,7 @@ export default function Home() {
 
   const exportToCSV = () => {
     if (!filteredResult) return;
-
+  
     // Convert data to CSV format
     const headers = ['Username', 'Following', 'Followed By', 'Following Date', 'Followed By Date'];
     const csvContent = [
@@ -320,13 +320,14 @@ export default function Home() {
         row.followedByDate || ''
       ].join(','))
     ].join('\n');
-
+  
     // Create and trigger download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', 'instagram_followers_analysis.csv');
+    link.setAttribute('target', '_blank');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
