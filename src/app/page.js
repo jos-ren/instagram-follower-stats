@@ -321,18 +321,58 @@ export default function Home() {
       ].join(','))
     ].join('\n');
   
-    // Create data URL
     const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
     
-    // Create and trigger download
-    const link = document.createElement('a');
-    link.href = encodedUri;
-    link.download = 'instagram_followers_analysis.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Check if mobile Firefox
+    const isMobileFirefox = navigator.userAgent.toLowerCase().includes('firefox') && 
+                           /mobile|tablet|android/i.test(navigator.userAgent);
+  
+    if (isMobileFirefox) {
+      // Create a modal with instructions
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        width: 90%;
+        max-width: 400px;
+      `;
+  
+      modal.innerHTML = `
+        <h3 style="margin: 0 0 15px 0; font-size: 16px;">Download CSV File</h3>
+        <p style="margin: 0 0 15px 0; font-size: 14px;">To save the file:</p>
+        <ol style="margin: 0 0 20px 20px; padding: 0; font-size: 14px;">
+          <li style="margin-bottom: 8px;">Long press the button below</li>
+          <li>Select "Save Link" or "Download Link"</li>
+        </ol>
+        <a href="${encodedUri}" 
+           download="instagram_followers_analysis.csv"
+           style="display: block; text-align: center; background: #0095f6; color: white; text-decoration: none; padding: 12px; border-radius: 4px; font-size: 14px;">
+          Download CSV File
+        </a>
+        <button onclick="this.parentElement.remove()" 
+                style="position: absolute; top: 10px; right: 10px; border: none; background: none; padding: 5px; cursor: pointer; font-size: 18px;">
+          ×
+        </button>
+      `;
+  
+      document.body.appendChild(modal);
+    } else {
+      // For all other browsers, trigger download automatically
+      const link = document.createElement('a');
+      link.href = encodedUri;
+      link.download = 'instagram_followers_analysis.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
-
   const getResponsiveColumns = () => {
     const baseColumns = [
       {
