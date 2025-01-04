@@ -321,14 +321,13 @@ export default function Home() {
       ].join(','))
     ].join('\n');
   
+    // Create data URL
+    const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+    
     // Create and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'instagram_followers_analysis.csv');
-    link.setAttribute('target', '_blank');
-    link.style.visibility = 'hidden';
+    link.href = encodedUri;
+    link.download = 'instagram_followers_analysis.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
