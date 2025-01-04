@@ -371,12 +371,12 @@ export default function Home() {
         ),
       },
       {
-        title: "Following",
+        title: "Following Me",
         dataIndex: 'following',
         key: 'following',
       },
       {
-        title: 'Followed By',
+        title: 'Followed By Me',
         dataIndex: 'followedBy',
         key: 'followedBy',
       },
