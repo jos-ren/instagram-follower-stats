@@ -10,7 +10,7 @@ const styles = {
         padding: '16px',
         maxWidth: '800px',
         margin: '0 auto',
-        '@media (min-width: 768px)': {
+        '@media (minWidth: 768px)': {
             padding: '24px',
         },
     },
@@ -43,7 +43,7 @@ const styles = {
         fontSize: '1.75rem',
         fontWeight: '700',
         marginBottom: '24px',
-        '@media (min-width: 768px)': {
+        '@media (minWidth: 768px)': {
             fontSize: '2.25rem',
         },
     },

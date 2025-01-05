@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaCheck, FaUpload, FaDownload, FaArrowRight } from "react-icons/fa6";
-import { Table, Button, Select, Card, Empty, Steps, Alert, Spin } from "antd";
+import { Table, Button, Select, Card, Empty, Steps, Alert, Spin, Input, Space } from "antd";
 import { HeroSection } from "./components/HeroSection.js";
+import { SearchOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import '@ant-design/v5-patch-for-react-19';
 
 const styles = {
   featureGrid: {
@@ -133,16 +135,16 @@ const styles = {
     padding: '20px 10px',
   },
   steps: {
-    '.ant-steps-item-title': {
+    '.antStepsItemTitle': {
       fontSize: '0.9rem',
       lineHeight: '1.2',
     },
-    '@media (max-width: 768px)': {
-      '.ant-steps-item-title': {
+    '@media (maxWidth: 768px)': {
+      '.antStepsItemTitle': {
         fontSize: '0.85rem',
         lineHeight: '1.2',
       },
-      '.ant-steps-item-description': {
+      '.antStepsItemDescription': {
         fontSize: '0.75rem',
       },
     },
@@ -160,6 +162,10 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+
   const [filters, setFilters] = useState({
     following: 'all',
     followedBy: 'all'
@@ -333,6 +339,70 @@ export default function Home() {
     document.body.removeChild(link);
   };
 
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+        : '',
+    filterDropdownProps: {
+      onOpenChange: visible => {
+        if (visible) {
+          setTimeout(() => searchInput.current.select(), 100);
+        }
+      },
+    },
+    render: text =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
+
+
   const getResponsiveColumns = () => {
     const baseColumns = [
       {
@@ -341,6 +411,7 @@ export default function Home() {
         key: 'username',
         sorter: (a, b) => a.username.localeCompare(b.username),
         fixed: 'left',
+        ...getColumnSearchProps('username'),
         render: (username) => (
           <a
             href={`https://instagram.com/${username}`}
@@ -459,7 +530,7 @@ export default function Home() {
             <Card style={styles.filterCard}>
               <div style={styles.filterContainer}>
                 <div style={styles.filterGroup}>
-                  <label>Following</label>
+                  <label>Following Me</label>
                   <Select
                     style={styles.selectWidth}
                     value={filters.following}
@@ -468,7 +539,7 @@ export default function Home() {
                   />
                 </div>
                 <div style={styles.filterGroup}>
-                  <label>Followed By</label>
+                  <label>Followed By Me</label>
                   <Select
                     style={styles.selectWidth}
                     value={filters.followedBy}
@@ -501,9 +572,9 @@ export default function Home() {
               size="middle"
               pagination={{
                 position: ['bottomCenter'],
-                size: 'small',
+                size: 'middle',
                 defaultPageSize: 10,
-                showSizeChanger: false,
+                showSizeChanger: true,
               }}
             />
           </>
